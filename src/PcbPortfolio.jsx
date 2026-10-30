@@ -25,12 +25,13 @@ const DEFAULT_SECTIONS = [
     label: "Teo Gonzalez",
     off: pcbOff1,
     on: pcbOn1,
+
   },
   {
     id: "proyectos",
     label: "Proyectos",
-    off: "/assets/pcb-off2.png",
-    on: "/assets/pcb-on2.png",
+    off: pcbOff2,
+    on: pcbOn2,
   },
 ];
 
