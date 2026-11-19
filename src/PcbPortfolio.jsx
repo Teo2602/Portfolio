@@ -1,40 +1,56 @@
-import { useEffect, useRef } from "react";
-import pcbOff1 from "./assets/pcb-off1.jpeg";
-import pcbOn1 from "./assets/pcb-on1.jpeg";
-import pcbOff2 from "./assets/pcb-off2.png";
-import pcbOn2 from "./assets/pcb-on2.png";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 import { useGSAP } from "@gsap/react";
+import SkillsScreen from "./SkillsScreen";
+import pcbOff1 from "./assets/pcb-off1.jpeg";
+import pcbOn1 from "./assets/pcb-on1.jpeg";
+import pcbOff2 from "./assets/pcb-off2.png";
+import pcbOn2 from "./assets/pcb-on2.png";
 import pcbOff3 from "./assets/pcb-off3.png";
 import pcbOn3 from "./assets/pcb-on3.png";
- 
+
 gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollSmoother);
- 
+
 /**
  * Portfolio con estética de PCB + scroll suave con GSAP.
  *
  *   npm i gsap @gsap/react
  *
- * Capas de cada sección:
- *   - off:   la PCB apagada (siempre visible)
- *   - on:    la PCB prendida, con sus colores originales, visible solo a través
- *            de una máscara (halo del cursor + franja de luz)
- *   - bloom: copia más brillante de `on`, con máscara más ancha (resplandor)
+ * Archivos: PcbPortfolio.jsx (este), SkillsScreen.jsx y SevenSegment.jsx.
  *
- * La franja de luz se define por su posición en la PANTALLA (no en la página):
- *   1. Al principio la página queda quieta (la primera sección está "pineada")
- *      y la franja baja desde arriba hasta la mitad de la pantalla mientras
- *      scrolleás. Cuando llega a la mitad, la página empieza a moverse.
- *   2. Después la franja queda en la mitad de la pantalla, así que recorre la
- *      página al mismo ritmo que el scroll.
- *   3. Al llegar al final de la página, la franja termina de bajar hasta el
- *      borde inferior.
+ * Pantallas 1 y 2: scroll vertical suave (ScrollSmoother). La primera queda
+ * quieta mientras la franja de luz baja hasta la mitad; después la franja
+ * recorre la página al ritmo del scroll y al final termina de bajar.
  *
- * Las imágenes deben tener el mismo ancho en píxeles para que las pistas sean
- * continuas entre secciones; cada sección toma su proporción de `ratio`.
+ * Pantalla 3 (`panel: true`): vive a la derecha de la segunda. Se llega con el
+ * botón "see more" de la pantalla 2: todo se desliza hacia la izquierda con
+ * la misma suavidad. Ahí no hay franja, solo el foco de luz del cursor.
+ *
+ * Capas de cada pantalla:
+ *   - off:   PCB apagada (siempre visible)
+ *   - on:    PCB prendida, visible solo a través de una máscara
+ *   - bloom: copia más brillante y desenfocada de `on` (resplandor)
  */
+
+const PROJECTS = [
+  { title: "Proyecto uno", text: "Descripción corta de qué hace y con qué tecnologías." },
+  { title: "Proyecto dos", text: "Descripción corta de qué hace y con qué tecnologías." },
+  { title: "Proyecto tres", text: "Descripción corta de qué hace y con qué tecnologías." },
+];
+
+// placeholders: reemplazalos por los tuyos. El display de la pantalla 3
+// muestra la cantidad de ítems de cada lista.
+const SKILLS = ["Habilidad 1", "Habilidad 2", "Habilidad 3", "Habilidad 4", "Habilidad 5", "Habilidad 6"];
+const QUALITIES = ["Cualidad 1", "Cualidad 2", "Cualidad 3", "Cualidad 4"];
+
+const SECTION_ITEMS = [
+  { id: "proyectos", label: "PROYECTOS", count: PROJECTS.length },
+  { id: "habilidades", label: "HABILIDADES", count: SKILLS.length },
+  { id: "cualidades", label: "CUALIDADES", count: QUALITIES.length },
+];
+
 const DEFAULT_SECTIONS = [
   {
     id: "inicio",
@@ -42,7 +58,6 @@ const DEFAULT_SECTIONS = [
     off: pcbOff1,
     on: pcbOn1,
     ratio: "1365 / 768",
-
   },
   {
     id: "proyectos",
@@ -61,25 +76,12 @@ const DEFAULT_SECTIONS = [
   },
 ];
 
-const PROJECTS = [
-  { title: "Proyecto uno", text: "Descripción corta de qué hace y con qué tecnologías." },
-  { title: "Proyecto dos", text: "Descripción corta de qué hace y con qué tecnologías." },
-  { title: "Proyecto tres", text: "Descripción corta de qué hace y con qué tecnologías." },
-];
-
-const SKILLS = ["Habilidad 1", "Habilidad 2", "Habilidad 3", "Habilidad 4", "Habilidad 5", "Habilidad 6"];
-const QUALITIES = ["Cualidad 1", "Cualidad 2", "Cualidad 3", "Cualidad 4"];
-
-const SECTION_ITEMS = [
-  { id: "proyectos", label: "PROYECTOS", count: PROJECTS.length },
-  { id: "habilidades", label: "HABILIDADES", count: SKILLS.length },
-  { id: "cualidades", label: "CUALIDADES", count: QUALITIES.length },
-]; 
-
 const HIDDEN = -240; // px: la cabeza de la franja queda fuera de pantalla, arriba
- 
+
 export default function PcbPortfolio({
   sections = DEFAULT_SECTIONS,
+  items = SECTION_ITEMS, // los 3 textos de la pantalla 3
+  onSeeMoreSection, // se llama con el ítem activo al tocar "ver más" en la pantalla 3
   // luz
   radius = 200, // radio del halo del cursor (px)
   waveStrength = 1, // intensidad de la franja (0 a 1)
@@ -88,21 +90,29 @@ export default function PcbPortfolio({
   bloomBlur = 4, // desenfoque del resplandor en px (0 si va lento)
   // scroll
   smooth = 1.2, // segundos que tarda el scroll en "alcanzar" al dedo/rueda
-  introScroll = 0.7, // scroll (en alturas de pantalla) que dura el tramo con la página quieta
-  introDelay = 0.15, // parte inicial de ese tramo (0 a 1) en la que la franja todavía no aparece
+  introScroll = 0.7, // scroll (en alturas de pantalla) con la página quieta al principio
+  introDelay = 0.15, // parte inicial de ese tramo (0 a 1) sin franja
   endDuration = 1.4, // segundos que tarda la franja en terminar de bajar al final
+  slideDuration = 1.6, // segundos que dura el deslizamiento a la pantalla 3
   // nombre
   nameSize = 191, // tamaño del nombre en tu diseño (px)...
   designWidth = 1920, // ...sobre un lienzo de este ancho (px); se escala con la pantalla
 }) {
+  const flow = sections.filter((s) => !s.panel); // pantallas del scroll vertical
+  const panelSec = sections.find((s) => s.panel); // pantalla de la derecha
+
   const wrapperRef = useRef(null);
   const contentRef = useRef(null);
   const sectionRefs = useRef([]);
-  // estado compartido entre GSAP y el render de la luz:
-  // intro: 0 → 1 (franja baja hasta la mitad), end: 0 → 1 (franja baja hasta el borde)
+  const panelRef = useRef(null);
+  const frameRef = useRef(null);
   const shared = useRef({ band: { intro: 0, end: 0 }, dirty: true });
- 
-  // ---- scroll suave, tramo inicial quieto y llegada al final ---------------
+  const viewRef = useRef("main"); // "main" | "skills"
+  const busy = useRef(false);
+  const [view, setView] = useState("main");
+  const [lit, setLit] = useState(false); // prende textos y displays de la pantalla 3
+
+  // ---- scroll suave, tramo inicial quieto, llegada al final y slide --------
   const { contextSafe } = useGSAP(
     () => {
       // la pantalla 3 espera fuera de la vista, a la derecha
@@ -441,29 +451,31 @@ function ProjectsScreen({ onSeeMore }) {
 }
 
 // ---- máscaras --------------------------------------------------------------
- 
+
 // Luz nítida: núcleo 100% opaco para que se vean los colores reales de la
 // imagen prendida, y borde suave solo al final.
 const MASK_LIT = [
   "radial-gradient(circle var(--r, 0px) at var(--x, -9999px) var(--y, -9999px), #000 0%, #000 52%, rgba(0,0,0,.55) 78%, transparent 100%)",
   "linear-gradient(to bottom, transparent calc(var(--wave, -9999px) - var(--trail, 600px)), rgba(0,0,0,calc(var(--ws, 0) * .35)) calc(var(--wave, -9999px) - 90px), rgba(0,0,0,var(--ws, 0)) calc(var(--wave, -9999px) - 14px), rgba(0,0,0,var(--ws, 0)) calc(var(--wave, -9999px) + 10px), transparent calc(var(--wave, -9999px) + 70px))",
 ].join(", ");
- 
+
 // Resplandor: más ancho y más suave, concentrado en la cabeza de la franja
 // y en el centro del halo.
 const MASK_BLOOM = [
   "radial-gradient(circle var(--r2, 0px) at var(--x, -9999px) var(--y, -9999px), rgba(0,0,0,calc(var(--bsc, 0) * .85)) 0%, rgba(0,0,0,calc(var(--bsc, 0) * .4)) 45%, transparent 100%)",
   "linear-gradient(to bottom, transparent calc(var(--wave, -9999px) - 130px), rgba(0,0,0,calc(var(--bs, 0) * .5)) calc(var(--wave, -9999px) - 30px), rgba(0,0,0,calc(var(--bs, 0) * .9)) var(--wave, -9999px), transparent calc(var(--wave, -9999px) + 140px))",
 ].join(", ");
- 
+
 const CSS = `
-  .pcb-btn { cursor: pointer; border-radius: 999px; transition: background .2s, box-shadow .2s; }
+  .pcb-btn { cursor: pointer; border: 0; padding: 0; background: transparent; border-radius: 999px; transition: background .2s, box-shadow .2s; }
   .pcb-btn:hover { background: rgba(62, 224, 240, .12); box-shadow: 0 0 24px rgba(62, 224, 240, .45); }
   .pcb-btn:focus-visible { outline: 2px solid #3ee0f0; outline-offset: 4px; }
+  .pcb-back { position: absolute; left: 24px; bottom: 24px; padding: 8px 14px; border: 1px solid rgba(174, 246, 255, .35); border-radius: 999px; background: rgba(0, 0, 0, .6); color: #aef6ff; font: inherit; cursor: pointer; }
+  .pcb-back:hover { background: rgba(174, 246, 255, .12); }
   /* tamaño del nombre: nameSize px sobre un lienzo de designWidth px, escalado al ancho real */
   .pcb-name { font-size: calc(100vw * var(--k)); font-size: calc(100cqw * var(--k)); }
 `;
- 
+
 const styles = {
   page: { background: "#000", margin: 0 },
   section: {
