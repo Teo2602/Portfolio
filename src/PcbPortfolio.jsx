@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ScrollSmoother } from "gsap/ScrollSmoother";
 import { useGSAP } from "@gsap/react";
 import SkillsScreen from "./SkillsScreen";
+import DetailScreen from "./DetailScreen";
 import pcbOff1 from "./assets/pcb-off1.jpeg";
 import pcbOn1 from "./assets/pcb-on1.jpeg";
 import pcbOff2 from "./assets/pcb-off2.png";
@@ -33,7 +34,6 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollSmoother);
  *   - on:    PCB prendida, visible solo a través de una máscara
  *   - bloom: copia más brillante y desenfocada de `on` (resplandor)
  */
-
 const PROJECTS = [
   { title: "Proyecto uno", text: "Descripción corta de qué hace y con qué tecnologías." },
   { title: "Proyecto dos", text: "Descripción corta de qué hace y con qué tecnologías." },
@@ -42,14 +42,40 @@ const PROJECTS = [
 
 // placeholders: reemplazalos por los tuyos. El display de la pantalla 3
 // muestra la cantidad de ítems de cada lista.
-const SKILLS = ["Habilidad 1", "Habilidad 2", "Habilidad 3", "Habilidad 4", "Habilidad 5", "Habilidad 6"];
-const QUALITIES = ["Cualidad 1", "Cualidad 2", "Cualidad 3", "Cualidad 4"];
+const QUALITIES = [
+  { title: "Trabajo en equipo", text: "Capacidad de colaborar con otras personas." },
+  { title: "Responsabilidad", text: "Compromiso con las tareas y objetivos." },
+  { title: "Creatividad", text: "Búsqueda de soluciones e ideas originales." },
+  { title: "Adaptabilidad", text: "Capacidad de aprender y adaptarse." },
+];
+
+const SKILLS = [
+  { title: "React", text: "Desarrollo de interfaces utilizando React." },
+  { title: "JavaScript", text: "Programación y lógica." },
+  { title: "Python", text: "Desarrollo de soluciones y backend." },
+  { title: "Diseño", text: "Diseño de interfaces y elementos visuales." },
+  { title: "Git", text: "Control de versiones y trabajo colaborativo." },
+  { title: "Arduino", text: "Programación e integración de hardware." },
+];
+
 
 const SECTION_ITEMS = [
   { id: "proyectos", label: "PROYECTOS", count: PROJECTS.length },
   { id: "habilidades", label: "HABILIDADES", count: SKILLS.length },
   { id: "cualidades", label: "CUALIDADES", count: QUALITIES.length },
 ];
+
+const DETAIL_DATA = {
+  proyectos: PROJECTS,
+  habilidades: SKILLS,
+  cualidades: QUALITIES,
+};
+
+const DETAIL_DIRECTIONS = {
+  proyectos: { x: 0, y: 100 },
+  habilidades: { x: -100, y: 0 },
+  cualidades: { x: 0, y: -100 },
+};
 
 const DEFAULT_SECTIONS = [
   {
@@ -100,7 +126,8 @@ export default function PcbPortfolio({
 }) {
   const flow = sections.filter((s) => !s.panel); // pantallas del scroll vertical
   const panelSec = sections.find((s) => s.panel); // pantalla de la derecha
-
+  const [detailSection, setDetailSection] = useState(null);
+  const detailRef = useRef(null);
   const wrapperRef = useRef(null);
   const contentRef = useRef(null);
   const sectionRefs = useRef([]);
@@ -216,6 +243,30 @@ export default function PcbPortfolio({
     panelRef.current?.toggleAttribute("inert", view !== "skills");
   }, [view]);
 
+  const openDetail = (sectionId) => {
+    if (!DETAIL_DATA[sectionId]) return;
+  
+    setDetailSection(sectionId);
+  };
+
+  const closeDetail = () => {
+    if (!detailRef.current || !detailSection) return;
+  
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+  
+    const direction = DETAIL_DIRECTIONS[detailSection];
+  
+    gsap.to(detailRef.current, {
+      xPercent: direction.x,
+      yPercent: direction.y,
+      duration: reduce ? 0.01 : 0.8,
+      ease: "power3.inOut",
+      onComplete: () => setDetailSection(null),
+    });
+  };
+
   // ---- luz: cursor + franja ------------------------------------------------
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -315,6 +366,30 @@ export default function PcbPortfolio({
     };
   }, [radius, waveStrength, trail, bloom]);
 
+  useEffect(() => {
+    if (!detailSection || !detailRef.current) return;
+  
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+  
+    const direction = DETAIL_DIRECTIONS[detailSection];
+  
+    gsap.fromTo(
+      detailRef.current,
+      {
+        xPercent: direction.x,
+        yPercent: direction.y,
+      },
+      {
+        xPercent: 0,
+        yPercent: 0,
+        duration: reduce ? 0.01 : 1,
+        ease: "power3.inOut",
+      }
+    );
+  }, [detailSection]);
+
   return (
     <>
       <div id="smooth-wrapper" ref={wrapperRef}>
@@ -359,7 +434,7 @@ export default function PcbPortfolio({
             style={{ ...styles.frame, backgroundImage: `url(${panelSec.off})` }}
           >
             <PcbLayers sec={panelSec} bloom={bloom} bloomBlur={bloomBlur} />
-            <SkillsScreen items={items} lit={lit} onSeeMore={onSeeMoreSection} />
+            <SkillsScreen items={items} lit={lit} onSeeMore={(item) => openDetail(item.id)} />
           </div>
 
           {/* provisorio: volver a la pantalla 2 (también con Escape) */}
