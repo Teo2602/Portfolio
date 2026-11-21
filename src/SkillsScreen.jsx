@@ -4,9 +4,10 @@ import { SevenSegmentDisplay } from "./SevenSegment";
 /**
  * Contenido de la tercera pantalla (Proyectos / Habilidades / Cualidades).
  *
- * Se posiciona en % sobre una imagen de 3840 x 2160. Las posiciones salen de
- * medir tu diseño en píxeles. Si cambia la imagen, recalculá:
- *   left = x / 3840 * 100,  top = y / 2160 * 100
+ * Se posiciona en % sobre una imagen de 3716 x 2032. Las posiciones salen de
+ * medir tu diseño en píxeles. Si cambia la proporción de la imagen, recalculá:
+ *   left = x / 3716 * 100,  top = y / 2032 * 100
+ * (si solo la reescalás manteniendo la proporción, no hace falta tocar nada)
  *
  * Props:
  *   items:     [{ id, label, count }] con exactamente 3 elementos. `count` es la
@@ -19,22 +20,28 @@ import { SevenSegmentDisplay } from "./SevenSegment";
  *              misma posición que en la pantalla de detalle (ver POS.close).
  */
 
-// una fila por cada texto: posición del display y centro vertical del texto (en %)
+// Una fila por cada texto. Cada uno se mueve por separado:
+//   digitsTop: posición vertical del display (en %)
+//   textMid:   centro vertical del texto (en %)  → más alto = más abajo
+//   textLeft:  borde izquierdo del texto (en %)  → más alto = más a la derecha
+// (si omitís textLeft usa POS.textLeft, el valor común)
 const ROWS = [
-  { digitsTop: 9.35, textMid: 15.8 },
-  { digitsTop: 44.12, textMid: 49.9 },
-  { digitsTop: 78.84, textMid: 83.7 },
+  { digitsTop: 4.04, textMid: 10.54, textLeft: 22.8 }, // PROYECTOS
+  { digitsTop: 41.0, textMid: 47, textLeft: 22.8 }, // HABILIDADES
+  { digitsTop: 77.95, textMid: 82.9, textLeft: 22.8 }, // CUALIDADES
 ];
 
 const POS = {
-  digitsLeft: 13.1,
-  digitsW: 9.87,
-  digitsH: 11.39,
-  textLeft: 25.5,
-  up: { left: 79.9, top: 33.43, w: 6.04, h: 9.03 },
-  mid: { left: 76.2, top: 44.91, w: 13.52, h: 10.14 },
-  down: { left: 79.9, top: 57.41, w: 6.04, h: 9.03 },
-  close: { left: 89.17, top: 11.48, w: 6.04, h: 9.03 }, // x 3424-3656, y 248-443
+  // los dos dígitos: x 376-750 (carcasas en x 344-548 y 578-782)
+  digitsLeft: 10.32,
+  digitsW: 10.06,
+  digitsH: 11.66,
+  digitsGap: 0.67,
+  textLeft: 23.3,
+  up: { left: 79.23, top: 29.23, w: 6.3, h: 9.65 }, // x 2944-3178, y 594-790
+  mid: { left: 75.4, top: 41.44, w: 13.99, h: 10.83 }, // x 2802-3322, y 842-1062
+  down: { left: 79.23, top: 54.72, w: 6.3, h: 9.65 }, // x 2944-3178, y 1112-1308
+  close: { left: 89.17, top: 11.48, w: 6.04, h: 9.03 }, // arriba a la derecha (la X tiene que estar dibujada en la imagen)
 };
 
 const placeBox = ({ left, top, w, h }) => ({
@@ -80,6 +87,7 @@ export default function SkillsScreen({ items, lit = true, onSeeMore, onBack }) {
             <SevenSegmentDisplay
               value={on ? item.count : null}
               digits={2}
+              gap={POS.digitsGap}
               style={{
                 position: "absolute",
                 left: `${POS.digitsLeft}%`,
@@ -94,7 +102,7 @@ export default function SkillsScreen({ items, lit = true, onSeeMore, onBack }) {
               aria-current={i === active ? "true" : undefined}
               style={{
                 position: "absolute",
-                left: `${POS.textLeft}%`,
+                left: `${row.textLeft ?? POS.textLeft}%`,
                 top: `${row.textMid}%`,
                 transform: "translateY(-50%)",
               }}
@@ -144,13 +152,14 @@ const CSS = `
     white-space: nowrap;
     line-height: 1;
     font-weight: 300;
-    letter-spacing: 0.04em;
-    font-size: 6.5cqw; /* altura de letra parecida a la de tu diseño; ajustala con tu tipografía */
+    letter-spacing: 0.015em;
+    font-family: "potra";
+    font-size: 6.7cqw; /* altura de letra parecida a la de tu diseño; ajustala con tu tipografía */
     color: var(--label-off, #24383b);
     transition: color .35s ease, text-shadow .35s ease;
   }
   .sk-label[data-lit="true"] {
-    color: var(--label-on, #aef6ff);
+    color: var(--label-on, #00E7F8);
     text-shadow: 0 0 .25em rgba(174, 246, 255, .55);
   }
   .sk-btn {

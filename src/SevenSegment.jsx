@@ -107,6 +107,7 @@ export function SevenSegmentDisplay({
   value = null,
   digits = 2,
   padZero = true, // 5 → "05" (si es false, el dígito de la izquierda queda apagado)
+  gap = 0.62, // separación entre dígitos, como fracción del ancho de un dígito
   onColor = DEFAULT_ON,
   offColor = DEFAULT_OFF,
   glow = true,
@@ -119,8 +120,7 @@ export function SevenSegmentDisplay({
     ? String(Math.min(Math.max(Math.round(value), 0), max)).padStart(digits, padZero ? "0" : " ")
     : "";
 
-  // separación entre dígitos: 0.62 veces el ancho de un dígito
-  const g = 0.62;
+  const g = gap;
   const basis = 100 / (digits + (digits - 1) * g);
 
   return (

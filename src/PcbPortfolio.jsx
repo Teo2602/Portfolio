@@ -123,6 +123,41 @@ const BACK = { list: "main", proyectos: "list", habilidades: "list", cualidades:
 
 const HIDDEN = -240; // px: la cabeza de la franja queda fuera de pantalla, arriba
 
+/** Lee la proporción real (ancho / alto) de una imagen, así el marco siempre calza. */
+function useImageRatio(src, fallback) {
+  const [ratio, setRatio] = useState(fallback);
+  useEffect(() => {
+    if (!src) return;
+    const img = new Image();
+    img.onload = () => img.naturalHeight && setRatio(img.naturalWidth / img.naturalHeight);
+    img.src = src;
+  }, [src]);
+  return ratio;
+}
+
+/**
+ * Marco de las pantallas fijas (3 y detalle), con la proporción de su imagen.
+ *  - "contain": se ve la imagen completa; si la ventana es más ancha o más alta
+ *    quedan franjas negras a los costados o arriba y abajo.
+ *  - "cover": llena la ventana y puede recortar los bordes de la imagen.
+ */
+const frameStyle = (ratio, fit) =>
+  fit === "cover"
+    ? {
+        left: "50%",
+        bottom: 0,
+        width: `max(100vw, calc(100vh * ${ratio}))`,
+        aspectRatio: String(ratio),
+        transform: "translateX(-50%)",
+      }
+    : {
+        left: "50%",
+        top: "50%",
+        width: `min(100vw, calc(100vh * ${ratio}))`,
+        aspectRatio: String(ratio),
+        transform: "translate(-50%, -50%)",
+      };
+
 export default function PcbPortfolio({
   sections = DEFAULT_SECTIONS,
   items = SECTION_ITEMS, // los 3 textos de la pantalla 3
@@ -139,6 +174,7 @@ export default function PcbPortfolio({
   introDelay = 0.15, // parte inicial de ese tramo (0 a 1) sin franja
   endDuration = 1.4, // segundos que tarda la franja en terminar de bajar al final
   slideDuration = 1.6, // segundos que dura cada deslizamiento entre pantallas
+  panelFit = "contain", // pantallas 3 y de detalle: "contain" (se ve entera) o "cover" (llena la ventana)
   // nombre
   nameSize = 191, // tamaño del nombre en tu diseño (px)...
   designWidth = 1920, // ...sobre un lienzo de este ancho (px); se escala con la pantalla
@@ -146,6 +182,8 @@ export default function PcbPortfolio({
   const flow = sections.filter((s) => !s.panel && !s.detail); // pantallas del scroll vertical
   const panelSec = sections.find((s) => s.panel); // pantalla 3
   const detailSec = sections.find((s) => s.detail); // pantalla de detalle
+  const panelRatio = useImageRatio(panelSec?.off, 3716 / 2032);
+  const detailRatio = useImageRatio(detailSec?.off, 3840 / 2160);
 
   const wrapperRef = useRef(null);
   const contentRef = useRef(null);
@@ -427,7 +465,7 @@ export default function PcbPortfolio({
         >
           <div
             ref={(el) => (frameRefs.current.list = el)}
-            style={{ ...styles.frame, backgroundImage: `url(${panelSec.off})` }}
+            style={{ ...styles.frame, ...frameStyle(panelRatio, panelFit), backgroundImage: `url(${panelSec.off})` }}
           >
             <PcbLayers sec={panelSec} bloom={bloom} bloomBlur={bloomBlur} />
             <SkillsScreen
@@ -451,7 +489,7 @@ export default function PcbPortfolio({
           >
             <div
               ref={(el) => (frameRefs.current[key] = el)}
-              style={{ ...styles.frame, backgroundImage: `url(${detailSec.off})` }}
+              style={{ ...styles.frame, ...frameStyle(detailRatio, panelFit), backgroundImage: `url(${detailSec.off})` }}
             >
               <PcbLayers sec={detailSec} bloom={bloom} bloomBlur={bloomBlur} />
               <DetailScreen
@@ -580,7 +618,7 @@ const styles = {
     backgroundRepeat: "no-repeat",
     containerType: "inline-size", // permite usar cqw (ancho de la sección) en el texto
   },
-  // pantallas 3 y de detalle: ocupan toda la ventana; el "marco" mantiene la proporción 16:9 de la imagen
+  // pantallas 3 y de detalle: ocupan toda la ventana; el "marco" mantiene la proporción de su imagen
   panel: {
     position: "fixed",
     inset: 0,
@@ -589,12 +627,7 @@ const styles = {
     visibility: "hidden", // se muestra al deslizar
   },
   frame: {
-    position: "absolute",
-    left: "50%",
-    bottom: 0,
-    width: "max(100vw, 177.7778vh)",
-    aspectRatio: "16 / 9",
-    transform: "translateX(-50%)",
+    position: "absolute", // tamaño y posición: ver frameStyle()
     backgroundSize: "100% 100%",
     backgroundRepeat: "no-repeat",
     containerType: "inline-size",
@@ -617,19 +650,19 @@ const styles = {
     maskImage: MASK_BLOOM,
     mixBlendMode: "screen",
   },
-    name: {
+ name: {
     position: "absolute",
-    left: "49.7%", // centro del nombre dibujado en la imagen
+    left: "49.8%", // centro del nombre dibujado en la imagen
     top: "47%",
     transform: "translate(-50%, -50%)",
     margin: 0,
     whiteSpace: "nowrap",
-    lineHeight: 1,
     textAlign: "center",
     // cambiá estos para que coincida con tu diseño
     color: "#00E7F8",
     fontFamily: "potra",
     fontWeight: 300,
+    letterSpacing: -1,
   },
   box: {
     position: "absolute",
