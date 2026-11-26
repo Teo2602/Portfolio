@@ -13,6 +13,24 @@ import pcbOff3 from "./assets/pcb-off3.png";
 import pcbOn3 from "./assets/pcb-on3.png";
 import pcbOff4 from "./assets/pcb-off4.png";
 import pcbOn4 from "./assets/pcb-on4.png";
+import SAILogo from "./assets/SAI.svg";
+import HorusLogo from "./assets/HorusAI.svg";
+import NindoLogo from "./assets/Nindo.svg";
+import CmasmasLogo from "./assets/Cmasmas.svg";
+import ArduinoLogo from "./assets/Arduino.svg";
+import LogisimLogo from "./assets/Logisim.svg";
+import GitHubLogo from "./assets/GitHub.svg";
+import HTMLLogo from "./assets/HTML.svg";
+import CSSLogo from "./assets/CSS.svg";
+import FigmaLogo from "./assets/Figma.svg";
+import JavaScriptLogo from "./assets/JavaScript.svg";
+import TypeScriptLogo from "./assets/TypeScript.svg";
+import UnityLogo from "./assets/Unity.svg";
+import CSharpLogo from "./assets/CSharp.svg";
+import BlenderLogo from "./assets/Blender.svg";
+import PythonLogo from "./assets/Python.svg";
+import PandasLogo from "./assets/Pandas.svg";
+import PostgreSQLLogo from "./assets/PostgreSQL.svg";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollSmoother);
 
@@ -47,10 +65,15 @@ gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollSmoother);
 
 // ---- contenido (placeholders: reemplazalos por los tuyos) -------------------
 
+// Cada ítem: { title, text } y, si querés, `logo` (ruta o import de una imagen).
+// Con `logo`, la pantalla de detalle muestra el logo en lugar del título.
+// Ejemplo:
+//   import logoHorus from "./assets/logos/horus.svg";
+//   { title: "HorusAI", logo: logoHorus, text: "Descripción..." }
 const PROJECTS = [
-  { title: "Proyecto uno", text: "Descripción corta de qué hace y con qué tecnologías." },
-  { title: "Proyecto dos", text: "Descripción corta de qué hace y con qué tecnologías." },
-  { title: "Proyecto tres", text: "Descripción corta de qué hace y con qué tecnologías." },
+  { title: "Horus AI", logo: HorusLogo, text: "Horus AI es una aplicación de escritorio basada en inteligencia artificial que analiza las cámaras de seguridad en tiempo real. Cuando detecta una emergencia, envía inmediatamente una alerta al responsable mediante una notificación o un mensaje al celular, permitiendo una respuesta mucho más rápida." },
+  { title: "Nindo", logo: NindoLogo, text: "Nindō es un juego de acción en el que forjás el camino del ninja novato Kaito, enfrentando a los guerreros del dojo que secuestraron a su abuelo. En su lucha por rescatar a su familiar, Kaito deberá dominar el combate y su espíritu, en una travesía donde el verdadero poder nace del lazo que lo une a su meta." },
+  { title: "S.A.I", logo: SAILogo, text: "Un periferico para la computadora que permite controlar distintos aspectos de esta con controladores físicos, la funcionalidad principal fue la de crear hardware que controle aspectos del sistema operativo como, volumen, brillo, dispositivo de salida de audio, etc." },
 ];
 
 const placeholders = (name, n) =>
@@ -59,8 +82,33 @@ const placeholders = (name, n) =>
     text: "Descripción corta.",
   }));
 
-const SKILLS = placeholders("Habilidad", 6);
-const QUALITIES = placeholders("Cualidad", 4);
+const SKILLS = [
+  { title: "C++", logo: CmasmasLogo, text: "Programación de alto rendimiento ideal para motores gráficos, sistemas embebidos y optimización de recursos." },
+  { title: "Assembler", text: "Programación a bajo nivel con control directo sobre el hardware, registros y arquitectura del procesador." },
+  { title: "Arduino", logo: ArduinoLogo, text: "Prototipado electrónico y programación de microcontroladores para interactuar con sensores y actuadores físicos." },
+  { title: "Logisim", logo: LogisimLogo, text: "Diseño y simulación de circuitos lógicos digitales y arquitectura de computadoras." },
+  { title: "GitHub", logo: GitHubLogo, text: "Gestión de repositorios, control de versiones con Git y trabajo colaborativo en proyectos de software." },
+  { title: "HTML", logo: HTMLLogo, text: "Estructura y maquetación semántica de páginas y aplicaciones web." },
+  { title: "CSS", logo: CSSLogo, text: "Diseño visual, estilos, animaciones y adaptación responsive para distintos dispositivos." },
+  { title: "Figma", logo: FigmaLogo, text: "Diseño de interfaces de usuario (UI), prototipado interactivo y sistemas de diseño colaborativos antes de pasar a código." },
+  { title: "JavaScript", logo: JavaScriptLogo, text: "Programación de interactividad, lógica del lado del cliente y dinamismo en la web." },
+  { title: "TypeScript", logo: TypeScriptLogo, text: "Desarrollo web escalable y seguro mediante tipado estático sobre JavaScript." },
+  { title: "Unity", logo: UnityLogo, text: "Motor de desarrollo para crear videojuegos y experiencias interactivas en 2D y 3D." },
+  { title: "C#", logo: CSharpLogo, text: "Lenguaje principal para programar mecánicas, físicas y lógica de juego dentro de Unity." },
+  { title: "Blender", logo: BlenderLogo, text: "Modelado 3D, texturizado, animación y renderizado de assets para juegos o visualización." },
+  { title: "Python", logo: PythonLogo, text: "Lenguaje versátil utilizado para automatización, scripting, desarrollo backend y análisis de datos." },
+  { title: "Pandas", logo: PandasLogo, text: "Biblioteca de Python para limpieza, manipulación y análisis eficiente de grandes volúmenes de datos." },
+  { title: "PostgreSQL", logo: PostgreSQLLogo, text: "Sistema de gestión de bases de datos relacionales para almacenar, consultar y estructurar información de forma robusta." },
+];
+const QUALITIES = [
+  { title: "Creativo", text: "Capacidad para diseñar soluciones originales y abordar problemas técnicos desde distintas perspectivas." },
+  { title: "Perseverante", text: "Constancia para depurar errores complejos, superar obstáculos técnicos y llevar cada proyecto hasta su finalización." },
+  { title: "Sociable", text: "Facilidad para construir buenas relaciones laborales, comunicar ideas con claridad y generar un ambiente de trabajo positivo." },
+  { title: "Optimista", text: "Actitud constructiva frente a los desafíos, manteniendo la motivación propia y del equipo ante imprevistos." },
+  { title: "Centrado", text: "Enfoque y disciplina para priorizar tareas críticas, gestionar el tiempo y cumplir con los objetivos sin perder de vista los detalles." },
+  { title: "Decidido", text: "Iniciativa para tomar decisiones técnicas fundamentadas y asumir responsabilidades en momentos clave del desarrollo." },
+  { title: "Cooperativo", text: "Disposición para el trabajo en equipo, el intercambio de conocimientos y la colaboración activa en proyectos multidisciplinarios." },
+];
 
 // lo que se recorre con las flechas de cada pantalla de detalle
 const DETAILS = {
@@ -540,17 +588,7 @@ function ProjectsScreen({ onSeeMore }) {
     <>
       {/* chip gris grande: x 150-1555, y 163-1894 */}
       <div style={{ ...styles.box, left: "3.91%", top: "8.13%", width: "36.63%", height: "86.43%" }}>
-        <h2 style={styles.h2}>Proyectos</h2>
-        <ul style={styles.list}>
-          {PROJECTS.map((p, i) => (
-            // data-lag: cada proyecto se "arrastra" un poco al scrollear (efecto de ScrollSmoother).
-            // Si no te gusta, borrá el atributo.
-            <li key={p.title} data-lag={0.15 + i * 0.12} style={styles.item}>
-              <h3 style={styles.h3}>{p.title}</h3>
-              <p style={styles.p}>{p.text}</p>
-            </li>
-          ))}
-        </ul>
+        <h3 style={styles.h2}>Hola, mi nombre es Teo Gonzalez. Siempre me interesé en el funcionamiento de las cosas y desde chico que me apasiona la tecnología y sus constantes innovaciones. Mi objetivo es algún día poder contribuir, mejorando los dispositivos electrónicos que hacen mas fácil nuestra vida. </h3>
       </div>
 
       {/* pantalla del display: x 2235-3320, y 308-1082 */}
@@ -669,13 +707,12 @@ const styles = {
     boxSizing: "border-box",
     padding: "clamp(16px, 2.4vw, 44px)",
     color: "#cfeff3",
-    fontFamily: "Rajdhani, system-ui, sans-serif",
-    fontSize: 35, // importá la fuente que uses en el título
+    fontFamily: "Rajdhani, system-ui, sans-serif", // importá la fuente que uses en el título
     overflow: "hidden",
   },
   h2: {
     margin: "0 0 1.2em",
-    fontSize: "clamp(20px, 2.6vw, 48px)",
+    fontSize: "clamp(20px, 2.3vw, 48px)",
     fontWeight: 300,
     letterSpacing: "0.06em",
   },

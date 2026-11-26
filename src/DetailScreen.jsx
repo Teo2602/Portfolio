@@ -10,7 +10,11 @@ import { useCallback, useEffect, useState } from "react";
  *
  * Props:
  *   label:  nombre de la sección (para lectores de pantalla)
- *   items:  [{ title, text }]  los ítems que se recorren con las flechas
+ *   items:  [{ title, logo?, text }]  los ítems que se recorren con las flechas.
+ *           Si el ítem tiene `logo`, se muestra el logo en lugar del título
+ *           (el título queda como texto alternativo para lectores de pantalla).
+ *           `logo` puede ser la ruta/import de una imagen (svg, png...) o un
+ *           elemento de React, por ejemplo un <svg>. Sin `logo`, se muestra el título.
  *   active: true cuando esta pantalla es la que se está viendo (habilita ← →)
  *   onBack: se llama al tocar la X
  */
@@ -70,7 +74,21 @@ export default function DetailScreen({ label, items, active = false, onBack }) {
       >
         {/* key: al cambiar de ítem se vuelve a montar y se repite la entrada suave */}
         <div key={index} className="dt-item">
-          <h2 className="dt-title">{item?.title}</h2>
+          {item?.logo ? (
+            <>
+              {typeof item.logo === "string" ? (
+                <img className="dt-logo" src={item.logo} alt="" draggable={false} decoding="async" />
+              ) : (
+                <div className="dt-logo" aria-hidden="true">
+                  {item.logo}
+                </div>
+              )}
+              {/* el título sigue estando para lectores de pantalla */}
+              <h2 className="dt-sr">{item.title}</h2>
+            </>
+          ) : (
+            <h2 className="dt-title">{item?.title}</h2>
+          )}
           <p className="dt-text">{item?.text}</p>
         </div>
       </section>
@@ -101,8 +119,12 @@ export default function DetailScreen({ label, items, active = false, onBack }) {
 }
 
 const CSS = `
-  .dt-item { animation: dt-in .35s ease both; }
+  .dt-item { animation: dt-in .35s ease both; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100%; gap: 1.6cqw; box-sizing: border-box; }
   .dt-title { margin: 0 0 .6em; font-weight: 300; font-size: 3.2cqw; line-height: 1.1; color: var(--detail-title, #aef6ff); }
+  /* logo: alto fijo y ancho automático; --logo-height cambia el tamaño */
+  .dt-logo { display: block; height: var(--logo-height, 9cqw); width: auto; max-width: 100%; object-fit: contain; margin: 0 0 1.6cqw; }
+  .dt-logo svg, .dt-logo img { display: block; height: 100%; width: auto; }
+  .dt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .dt-text { margin: 0; font-size: 1.6cqw; line-height: 1.5; color: var(--detail-text, #9fc4cb); }
   @keyframes dt-in { from { opacity: 0; transform: translateY(1.2cqw); } to { opacity: 1; transform: none; } }
 
