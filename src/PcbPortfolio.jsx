@@ -614,7 +614,7 @@ function ProjectsScreen({ onSeeMore }) {
       <button
         type="button"
         className="pcb-btn"
-        aria-label="Ver más"
+        aria-label="continuar"
         onClick={onSeeMore}
         style={styles.button}
       />
