@@ -31,6 +31,7 @@ import BlenderLogo from "./assets/Blender.svg";
 import PythonLogo from "./assets/Python.svg";
 import PandasLogo from "./assets/Pandas.svg";
 import PostgreSQLLogo from "./assets/PostgreSQL.svg";
+import yo from "./assets/asciime.png";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, ScrollSmoother);
 
@@ -605,7 +606,7 @@ function ProjectsScreen({ onSeeMore }) {
         }}
       >
         {/* acá va una captura o video del proyecto seleccionado */}
-        <span style={{ ...styles.p, opacity: 0.45 }}>Vista previa</span>
+        <img src={yo} alt="imagen del creador de la web" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </div>
 
       {/* botón "see more" dibujado en la imagen: x 2540-3005, y 1538-1713.
